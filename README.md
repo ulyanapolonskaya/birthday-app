@@ -55,7 +55,7 @@ The built files will be in the `dist` directory, ready for deployment.
 
 This app is designed to be deployed on GitHub Pages or any static hosting service:
 
-1. Build the project: `npm run build`
+1. Build the project: `npm run build` 
 2. Deploy the `dist` folder to your hosting service
 3. Ensure the `birthdays.json` file is accessible in the public directory
 

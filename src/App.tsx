@@ -193,25 +193,22 @@ function App() {
   return (
     <div className="container">
       <header style={{ padding: 'var(--spacing-xl) 0' }}>
-        <div className="flex justify-between items-center mb-lg">
-          <div>
-            <h1 className="flex items-center gap-md">
-              <Calendar size={40} style={{ color: 'var(--accent-teal)' }} />
-              Семейные Дни Рождения
-            </h1>
-            <p className="text-secondary" style={{ margin: 0 }}>
-              Отслеживайте особые дни ваших близких
-            </p>
-          </div>
-          
+        <div className="mb-lg">
+          <h1 className="flex items-center gap-md">
+            <Calendar size={40} style={{ color: 'var(--accent-teal)' }} />
+            Семейные Дни Рождения
+          </h1>
+          <p className="text-secondary" style={{ margin: '0 0 var(--spacing-md) 0' }}>
+            Отслеживайте особые дни ваших близких
+          </p>
           <div className="flex gap-sm">
-            <button onClick={downloadJSON} className="btn btn-secondary" title="Скачать JSON">
-              <Download size={16} />
-              Экспорт
-            </button>
             <button onClick={openAddForm} className="btn btn-primary">
               <Plus size={16} />
               Добавить День Рождения
+            </button>
+            <button onClick={downloadJSON} className="btn btn-secondary" title="Скачать JSON">
+              <Download size={16} />
+              Экспорт
             </button>
           </div>
         </div>

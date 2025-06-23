@@ -50,7 +50,7 @@ function App() {
     const loadBirthdays = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/birthdays.json');
+        const response = await fetch('./birthdays.json');
         if (!response.ok) {
           throw new Error('Не удалось загрузить дни рождения');
         }

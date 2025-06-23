@@ -6,6 +6,24 @@ import { BirthdayCard } from './components/BirthdayCard';
 import { BirthdayForm } from './components/BirthdayForm';
 import { ConfirmDialog } from './components/ConfirmDialog';
 
+// Helper function for Russian pluralization of years
+const getYearsWord = (count: number): string => {
+  const lastDigit = count % 10;
+  const lastTwoDigits = count % 100;
+  
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+    return 'лет';
+  }
+  
+  if (lastDigit === 1) {
+    return 'год';
+  } else if (lastDigit >= 2 && lastDigit <= 4) {
+    return 'года';
+  } else {
+    return 'лет';
+  }
+};
+
 function App() {
   const [birthdays, setBirthdays] = useState<Birthday[]>([]);
   const [enrichedBirthdays, setEnrichedBirthdays] = useState<BirthdayWithCalculations[]>([]);
@@ -34,7 +52,7 @@ function App() {
         setLoading(true);
         const response = await fetch('/birthdays.json');
         if (!response.ok) {
-          throw new Error('Failed to load birthdays');
+          throw new Error('Не удалось загрузить дни рождения');
         }
         const data: Birthday[] = await response.json();
         
@@ -45,7 +63,7 @@ function App() {
         setBirthdays(birthdaysToUse);
         setError(null);
       } catch (err) {
-        setError('Failed to load birthdays. Please try again later.');
+        setError('Не удалось загрузить дни рождения. Пожалуйста, попробуйте позже.');
         console.error('Error loading birthdays:', err);
       } finally {
         setLoading(false);
@@ -146,7 +164,7 @@ function App() {
         <div className="flex justify-center items-center" style={{ minHeight: '50vh' }}>
           <div className="text-center">
             <Calendar size={48} style={{ color: 'var(--accent-teal)', margin: '0 auto 1rem' }} />
-            <p>Loading birthdays...</p>
+            <p>Загрузка дней рождения...</p>
           </div>
         </div>
       </div>
@@ -164,7 +182,7 @@ function App() {
               className="btn btn-primary"
               style={{ marginTop: 'var(--spacing-md)' }}
             >
-              Try Again
+              Попробовать снова
             </button>
           </div>
         </div>
@@ -179,21 +197,21 @@ function App() {
           <div>
             <h1 className="flex items-center gap-md">
               <Calendar size={40} style={{ color: 'var(--accent-teal)' }} />
-              Family Birthdays
+              Семейные Дни Рождения
             </h1>
             <p className="text-secondary" style={{ margin: 0 }}>
-              Keep track of your loved ones' special days
+              Отслеживайте особые дни ваших близких
             </p>
           </div>
           
           <div className="flex gap-sm">
-            <button onClick={downloadJSON} className="btn btn-secondary" title="Download JSON">
+            <button onClick={downloadJSON} className="btn btn-secondary" title="Скачать JSON">
               <Download size={16} />
-              Export
+              Экспорт
             </button>
             <button onClick={openAddForm} className="btn btn-primary">
               <Plus size={16} />
-              Add Birthday
+              Добавить День Рождения
             </button>
           </div>
         </div>
@@ -201,12 +219,12 @@ function App() {
         {todaysBirthdays.length > 0 && (
           <div className="birthday-alert">
             <h2 style={{ color: 'var(--accent-rose)', margin: '0 0 var(--spacing-sm) 0' }}>
-              🎉 Today's Birthdays!
+              🎉 Сегодня дни рождения!
             </h2>
             <div className="flex flex-col gap-sm">
               {todaysBirthdays.map(birthday => (
                 <span key={birthday.id} className="text-lg">
-                  <strong>{birthday.name}</strong> turns {birthday.age}!
+                  <strong>{birthday.name}</strong> исполняется {birthday.age} {birthday.age ? getYearsWord(birthday.age) : 'лет'}!
                 </span>
               ))}
             </div>
@@ -218,11 +236,11 @@ function App() {
         {enrichedBirthdays.length === 0 ? (
           <div className="text-center" style={{ padding: 'var(--spacing-2xl) 0' }}>
             <Calendar size={64} style={{ color: 'var(--text-muted)', margin: '0 auto var(--spacing-lg)' }} />
-            <h3 className="text-muted">No birthdays yet</h3>
-            <p className="text-muted mb-lg">Add your first birthday to get started!</p>
+            <h3 className="text-muted">Пока нет дней рождения</h3>
+            <p className="text-muted mb-lg">Добавьте первый день рождения, чтобы начать!</p>
             <button onClick={openAddForm} className="btn btn-primary">
               <Plus size={16} />
-              Add Your First Birthday
+              Добавить Первый День Рождения
             </button>
           </div>
         ) : (
@@ -248,11 +266,11 @@ function App() {
 
       <ConfirmDialog
         isOpen={deleteConfirm.isOpen}
-        title="Delete Birthday"
-        message={`Are you sure you want to delete ${deleteConfirm.birthdayName}'s birthday? This action cannot be undone.`}
+        title="Удалить День Рождения"
+        message={`Вы уверены, что хотите удалить день рождения ${deleteConfirm.birthdayName}? Это действие нельзя отменить.`}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteConfirm({ isOpen: false, birthdayId: '', birthdayName: '' })}
-        confirmText="Delete"
+        confirmText="Удалить"
         type="danger"
       />
     </div>

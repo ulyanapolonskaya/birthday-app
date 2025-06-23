@@ -8,11 +8,47 @@ interface BirthdayCardProps {
   onDelete: (id: string) => void;
 }
 
+// Helper function for Russian pluralization of days
+const getDaysWord = (count: number): string => {
+  const lastDigit = count % 10;
+  const lastTwoDigits = count % 100;
+  
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+    return 'дней';
+  }
+  
+  if (lastDigit === 1) {
+    return 'день';
+  } else if (lastDigit >= 2 && lastDigit <= 4) {
+    return 'дня';
+  } else {
+    return 'дней';
+  }
+};
+
+// Helper function for Russian pluralization of years
+const getYearsWord = (count: number): string => {
+  const lastDigit = count % 10;
+  const lastTwoDigits = count % 100;
+  
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+    return 'лет';
+  }
+  
+  if (lastDigit === 1) {
+    return 'год';
+  } else if (lastDigit >= 2 && lastDigit <= 4) {
+    return 'года';
+  } else {
+    return 'лет';
+  }
+};
+
 export const BirthdayCard = ({ birthday, onEdit, onDelete }: BirthdayCardProps) => {
   const getDaysText = (days: number) => {
-    if (days === 0) return "Today! 🎉";
-    if (days === 1) return "Tomorrow";
-    return `In ${days} days`;
+    if (days === 0) return "Сегодня! 🎉";
+    if (days === 1) return "Завтра";
+    return `Через ${days} ${getDaysWord(days)}`;
   };
 
   const getCardClassName = () => {
@@ -39,7 +75,7 @@ export const BirthdayCard = ({ birthday, onEdit, onDelete }: BirthdayCardProps) 
               </span>
               {birthday.age && (
                 <span className="text-muted text-sm">
-                  Age {birthday.age}
+                  {birthday.age} {getYearsWord(birthday.age)}
                 </span>
               )}
             </div>
@@ -60,14 +96,14 @@ export const BirthdayCard = ({ birthday, onEdit, onDelete }: BirthdayCardProps) 
           <button
             onClick={() => onEdit(birthday)}
             className="btn btn-sm btn-secondary"
-            title="Edit birthday"
+            title="Редактировать день рождения"
           >
             <Edit size={16} />
           </button>
           <button
             onClick={() => onDelete(birthday.id)}
             className="btn btn-sm btn-danger"
-            title="Delete birthday"
+            title="Удалить день рождения"
           >
             <Trash2 size={16} />
           </button>

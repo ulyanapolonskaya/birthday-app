@@ -39,16 +39,16 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = 'Имя обязательно';
     }
 
     if (!formData.dob) {
-      newErrors.dob = 'Date of birth is required';
+      newErrors.dob = 'Дата рождения обязательна';
     } else {
       const selectedDate = new Date(formData.dob);
       const today = new Date();
       if (selectedDate > today) {
-        newErrors.dob = 'Date of birth cannot be in the future';
+        newErrors.dob = 'Дата рождения не может быть в будущем';
       }
     }
 
@@ -90,7 +90,7 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
     <div className="modal-overlay">
       <div className="modal">
         <div className="modal-header">
-          <h2>{birthday ? 'Edit Birthday' : 'Add Birthday'}</h2>
+          <h2>{birthday ? 'Редактировать День Рождения' : 'Добавить День Рождения'}</h2>
           <button onClick={onCancel} className="btn btn-sm btn-secondary">
             <X size={16} />
           </button>
@@ -98,21 +98,21 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
 
         <form onSubmit={handleSubmit} className="modal-body">
           <div className="form-group">
-            <label htmlFor="name">Name *</label>
+            <label htmlFor="name">Имя *</label>
             <input
               type="text"
               id="name"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Enter full name"
+              placeholder="Введите полное имя"
               className={errors.name ? 'error' : ''}
             />
             {errors.name && <span className="error-text">{errors.name}</span>}
           </div>
 
           <div className="form-group">
-            <label htmlFor="dob">Date of Birth *</label>
+            <label htmlFor="dob">Дата Рождения *</label>
             <input
               type="date"
               id="dob"
@@ -125,24 +125,24 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
           </div>
 
           <div className="form-group">
-            <label htmlFor="notes">Notes (optional)</label>
+            <label htmlFor="notes">Заметки (необязательно)</label>
             <textarea
               id="notes"
               name="notes"
               value={formData.notes}
               onChange={handleChange}
-              placeholder="Add any notes about this person..."
+              placeholder="Добавьте заметки об этом человеке..."
               rows={3}
             />
           </div>
 
           <div className="modal-footer">
             <button type="button" onClick={onCancel} className="btn btn-secondary">
-              Cancel
+              Отмена
             </button>
             <button type="submit" className="btn btn-primary">
               <Save size={16} />
-              {birthday ? 'Update' : 'Add'} Birthday
+              {birthday ? 'Обновить' : 'Добавить'} День Рождения
             </button>
           </div>
         </form>

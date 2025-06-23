@@ -1,26 +1,26 @@
 [
   {
     "id": "1",
-    "name": "Anna",
+    "name": "Анна",
     "dob": "1990-06-10",
-    "notes": "Loves chocolate cake"
+    "notes": "Любит шоколадный торт"
   },
   {
     "id": "2",
-    "name": "Max",
+    "name": "Максим",
     "dob": "2005-07-03",
     "notes": ""
   },
   {
     "id": "3",
-    "name": "Sarah",
+    "name": "Сара",
     "dob": "1985-12-25",
-    "notes": "Christmas baby!"
+    "notes": "Родилась на Рождество!"
   },
   {
     "id": "4",
-    "name": "John",
+    "name": "Иван",
     "dob": "1978-03-15",
-    "notes": "Dad - loves fishing"
+    "notes": "Папа - любит рыбалку"
   }
 ] 

@@ -1,4 +1,5 @@
 import { differenceInDays, differenceInYears, format, isToday, parseISO } from 'date-fns';
+import { ru } from 'date-fns/locale';
 import type { Birthday, BirthdayWithCalculations } from '../types';
 
 export const calculateAge = (dob: string): number => {
@@ -41,7 +42,7 @@ export const isBirthdayToday = (dob: string): boolean => {
 
 export const formatBirthday = (dob: string): string => {
   const birthDate = parseISO(dob);
-  return format(birthDate, 'MMMM d');
+  return format(birthDate, 'd MMMM', { locale: ru });
 };
 
 export const enrichBirthdayData = (birthday: Birthday): BirthdayWithCalculations => {

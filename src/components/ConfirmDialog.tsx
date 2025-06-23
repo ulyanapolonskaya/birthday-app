@@ -17,8 +17,8 @@ export const ConfirmDialog = ({
   message,
   onConfirm,
   onCancel,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText = 'Подтвердить',
+  cancelText = 'Отмена',
   type = 'danger'
 }: ConfirmDialogProps) => {
   if (!isOpen) return null;

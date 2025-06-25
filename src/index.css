@@ -340,7 +340,8 @@ input::placeholder, textarea::placeholder {
 }
 
 .form-group input.error,
-.form-group textarea.error {
+.form-group textarea.error,
+.form-group select.error {
   border-color: var(--error);
 }
 
@@ -349,6 +350,16 @@ input::placeholder, textarea::placeholder {
   color: var(--error);
   font-size: 0.875rem;
   margin-top: var(--spacing-xs);
+}
+
+.date-dropdown-container {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.date-dropdown-container select {
+  flex: 1;
+  min-width: 0;
 }
 
 textarea {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Save } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { Birthday } from '../types';
 
 interface BirthdayFormProps {
@@ -214,7 +214,6 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
               Отмена
             </button>
             <button type="submit" className="btn btn-primary">
-              <Save size={16} />
               {birthday ? 'Обновить' : 'Добавить'} День Рождения
             </button>
           </div>

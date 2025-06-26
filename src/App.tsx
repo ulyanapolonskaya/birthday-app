@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, LogOut } from 'lucide-react';
+import { Calendar, LogOut } from 'lucide-react';
 import type { Birthday, BirthdayWithCalculations } from './types';
 import type { User } from 'firebase/auth';
 import { enrichBirthdayData, sortBirthdaysByUpcoming } from './utils/dateUtils';
@@ -293,7 +293,6 @@ function App() {
         {/* Action Buttons */}
         <div className="flex gap-sm flex-wrap">
           <button onClick={openAddForm} className="btn btn-primary">
-            <Plus size={20} />
             Добавить день рождения
           </button>
         </div>
@@ -317,7 +316,6 @@ function App() {
             <h2>Нет дней рождения</h2>
             <p>Добавьте первый день рождения, чтобы начать отслеживание.</p>
             <button onClick={openAddForm} className="btn btn-primary">
-              <Plus size={20} />
               Добавить день рождения
             </button>
           </div>

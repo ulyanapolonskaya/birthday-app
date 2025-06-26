@@ -7,8 +7,10 @@ import { BirthdayCard } from './components/BirthdayCard';
 import { BirthdayForm } from './components/BirthdayForm';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import { LoginForm } from './components/LoginForm';
+import { ThemeSwitcher } from './components/ThemeSwitcher';
 import { AuthService } from './services/authService';
 import { BirthdayService } from './services/birthdayService';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Helper function for Russian pluralization of years
 const getYearsWord = (count: number): string => {
@@ -28,13 +30,12 @@ const getYearsWord = (count: number): string => {
   }
 };
 
-function App() {
-  const [user, setUser] = useState<User | null>(null);
+function MainApp() {
   const [birthdays, setBirthdays] = useState<Birthday[]>([]);
   const [enrichedBirthdays, setEnrichedBirthdays] = useState<BirthdayWithCalculations[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
 
   // Form state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -58,7 +59,6 @@ function App() {
   useEffect(() => {
     const unsubscribe = authService.onAuthStateChanged(async (authUser) => {
       setUser(authUser);
-      setInitializing(false);
       
       if (authUser) {
         await loadBirthdays(authUser);
@@ -94,9 +94,9 @@ function App() {
             if (response.ok) {
               defaultBirthdays = await response.json();
             }
-                     } catch {
-             console.log('No default birthdays.json found');
-           }
+          } catch {
+            console.log('No default birthdays.json found');
+          }
         }
         
         if (defaultBirthdays.length > 0) {
@@ -192,22 +192,7 @@ function App() {
     setEditingBirthday(undefined);
   };
 
-
-
   const todaysBirthdays = enrichedBirthdays.filter(b => b.isToday);
-
-  if (initializing) {
-    return (
-      <div className="container">
-        <div className="flex justify-center items-center" style={{ minHeight: '50vh' }}>
-          <div className="text-center">
-            <Calendar size={48} style={{ color: 'var(--accent-teal)', margin: '0 auto 1rem' }} />
-            <p>Инициализация...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (!user) {
     return <LoginForm />;
@@ -254,18 +239,21 @@ function App() {
               <Calendar size={40} style={{ color: 'var(--accent-teal)' }} />
               Семейные Дни Рождения
             </h1>
-            <div className="user-info">
-              <div className="user-name">
-                {user.displayName || (user.isAnonymous ? 'Гость' : user.email)}
+            <div className="flex items-center gap-md">
+              <ThemeSwitcher />
+              <div className="user-info">
+                <div className="user-name">
+                  {user.displayName || (user.isAnonymous ? 'Гость' : user.email)}
+                </div>
+                <button 
+                  onClick={() => authService.logout().catch(console.error)}
+                  className="logout-btn"
+                  title="Выйти"
+                >
+                  <LogOut size={16} />
+                  выйти
+                </button>
               </div>
-              <button 
-                onClick={() => authService.logout().catch(console.error)}
-                className="logout-btn"
-                title="Выйти"
-              >
-                <LogOut size={16} />
-                выйти
-              </button>
             </div>
           </div>
           <p style={{ color: 'var(--text-muted)', marginTop: 'var(--spacing-sm)' }}>
@@ -322,13 +310,13 @@ function App() {
         )}
       </main>
 
-             {/* Birthday Form Modal */}
-       <BirthdayForm
-         birthday={editingBirthday}
-         onSave={editingBirthday ? handleEditBirthday : handleAddBirthday}
-         onCancel={closeForm}
-         isOpen={isFormOpen}
-       />
+      {/* Birthday Form Modal */}
+      <BirthdayForm
+        birthday={editingBirthday}
+        onSave={editingBirthday ? handleEditBirthday : handleAddBirthday}
+        onCancel={closeForm}
+        isOpen={isFormOpen}
+      />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
@@ -339,6 +327,42 @@ function App() {
         onCancel={() => setDeleteConfirm({ isOpen: false, birthdayId: '', birthdayName: '' })}
       />
     </div>
+  );
+}
+
+function App() {
+  const [user, setUser] = useState<User | null>(null);
+  const [initializing, setInitializing] = useState(true);
+
+  const authService = AuthService.getInstance();
+
+  // Initialize authentication and listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = authService.onAuthStateChanged((authUser) => {
+      setUser(authUser);
+      setInitializing(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  if (initializing) {
+    return (
+      <div className="container">
+        <div className="flex justify-center items-center" style={{ minHeight: '50vh' }}>
+          <div className="text-center">
+            <Calendar size={48} style={{ color: 'var(--accent-teal)', margin: '0 auto 1rem' }} />
+            <p>Инициализация...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <ThemeProvider user={user}>
+      <MainApp />
+    </ThemeProvider>
   );
 }
 

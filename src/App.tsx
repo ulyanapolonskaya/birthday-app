@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Download, LogOut } from 'lucide-react';
+import { Plus, Calendar, LogOut } from 'lucide-react';
 import type { Birthday, BirthdayWithCalculations } from './types';
 import type { User } from 'firebase/auth';
 import { enrichBirthdayData, sortBirthdaysByUpcoming } from './utils/dateUtils';
@@ -192,18 +192,7 @@ function App() {
     setEditingBirthday(undefined);
   };
 
-  const downloadJSON = () => {
-    const dataStr = JSON.stringify(birthdays, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'birthdays.json';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
+
 
   const todaysBirthdays = enrichedBirthdays.filter(b => b.isToday);
 
@@ -306,10 +295,6 @@ function App() {
           <button onClick={openAddForm} className="btn btn-primary">
             <Plus size={20} />
             Добавить день рождения
-          </button>
-          <button onClick={downloadJSON} className="btn btn-secondary">
-            <Download size={20} />
-            Скачать данные
           </button>
         </div>
       </header>

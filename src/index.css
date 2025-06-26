@@ -573,8 +573,9 @@ textarea {
 /* User info styles */
 .user-info {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-xs);
   color: var(--text-muted);
   font-size: var(--text-sm);
 }
@@ -582,9 +583,13 @@ textarea {
 .user-name {
   font-weight: 500;
   color: var(--text-primary);
+  text-align: right;
 }
 
 .logout-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   background: none;
   border: 1px solid var(--bg-tertiary);
   color: var(--text-muted);
@@ -596,6 +601,7 @@ textarea {
 }
 
 .logout-btn:hover {
-  background-color: var(--bg-tertiary);
-  color: var(--text-secondary);
+  background-color: var(--error);
+  color: white;
+  border-color: var(--error);
 }

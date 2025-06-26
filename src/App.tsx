@@ -255,16 +255,16 @@ function App() {
               Семейные Дни Рождения
             </h1>
             <div className="user-info">
-              <span className="user-name">
+              <div className="user-name">
                 {user.displayName || (user.isAnonymous ? 'Гость' : user.email)}
-              </span>
+              </div>
               <button 
                 onClick={() => authService.logout().catch(console.error)}
                 className="logout-btn"
                 title="Выйти"
               >
                 <LogOut size={16} />
-                Выйти
+                выйти
               </button>
             </div>
           </div>

@@ -239,7 +239,7 @@ function MainApp() {
               <Calendar size={40} style={{ color: 'var(--accent-teal)' }} />
               Семейные Дни Рождения
             </h1>
-            <div className="flex items-center gap-md">
+            <div className="flex flex-col items-end gap-sm">
               <ThemeSwitcher />
               <div className="user-info">
                 <div className="user-name">

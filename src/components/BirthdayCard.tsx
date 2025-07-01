@@ -12,11 +12,11 @@ interface BirthdayCardProps {
 const getDaysWord = (count: number): string => {
   const lastDigit = count % 10;
   const lastTwoDigits = count % 100;
-  
+
   if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
     return 'дней';
   }
-  
+
   if (lastDigit === 1) {
     return 'день';
   } else if (lastDigit >= 2 && lastDigit <= 4) {
@@ -30,11 +30,11 @@ const getDaysWord = (count: number): string => {
 const getYearsWord = (count: number): string => {
   const lastDigit = count % 10;
   const lastTwoDigits = count % 100;
-  
+
   if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
     return 'лет';
   }
-  
+
   if (lastDigit === 1) {
     return 'год';
   } else if (lastDigit >= 2 && lastDigit <= 4) {
@@ -44,17 +44,21 @@ const getYearsWord = (count: number): string => {
   }
 };
 
-export const BirthdayCard = ({ birthday, onEdit, onDelete }: BirthdayCardProps) => {
+export const BirthdayCard = ({
+  birthday,
+  onEdit,
+  onDelete,
+}: BirthdayCardProps) => {
   const getDaysText = (days: number) => {
-    if (days === 0) return "Сегодня! 🎉";
-    if (days === 1) return "Завтра";
+    if (days === 0) return 'Сегодня! 🎉';
+    if (days === 1) return 'Завтра';
     return `Через ${days} ${getDaysWord(days)}`;
   };
 
   const getCardClassName = () => {
-    let baseClass = "card";
+    let baseClass = 'card';
     if (birthday.isToday) {
-      baseClass += " birthday-today";
+      baseClass += ' birthday-today';
     }
     return baseClass;
   };
@@ -64,10 +68,15 @@ export const BirthdayCard = ({ birthday, onEdit, onDelete }: BirthdayCardProps) 
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <div className="flex items-center gap-sm mb-sm">
-            {birthday.isToday && <Cake size={20} style={{ color: 'var(--accent-rose)' }} />}
-            <h3 style={{ margin: 0 }}>{birthday.name}</h3>
+            {birthday.isToday && (
+              <Cake size={20} style={{ color: 'var(--accent-rose)' }} />
+            )}
+            <h3 style={{ margin: 0 }}>
+              {birthday.name}
+              {birthday.surname && ` ${birthday.surname}`}
+            </h3>
           </div>
-          
+
           <div className="flex flex-col gap-sm">
             <div className="flex items-center gap-md">
               <span className="text-secondary">
@@ -79,11 +88,15 @@ export const BirthdayCard = ({ birthday, onEdit, onDelete }: BirthdayCardProps) 
                 </span>
               )}
             </div>
-            
-            <div className={`text-sm font-medium ${birthday.isToday ? 'birthday-today-text' : 'text-secondary'}`}>
+
+            <div
+              className={`text-sm font-medium ${
+                birthday.isToday ? 'birthday-today-text' : 'text-secondary'
+              }`}
+            >
               {getDaysText(birthday.daysUntilNext)}
             </div>
-            
+
             {birthday.notes && (
               <p className="text-sm text-muted" style={{ margin: 0 }}>
                 {birthday.notes}
@@ -91,7 +104,7 @@ export const BirthdayCard = ({ birthday, onEdit, onDelete }: BirthdayCardProps) 
             )}
           </div>
         </div>
-        
+
         <div className="flex gap-sm">
           <button
             onClick={() => onEdit(birthday)}
@@ -111,4 +124,4 @@ export const BirthdayCard = ({ birthday, onEdit, onDelete }: BirthdayCardProps) 
       </div>
     </div>
   );
-}; 
+};

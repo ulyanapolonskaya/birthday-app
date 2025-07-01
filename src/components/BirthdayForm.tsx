@@ -9,13 +9,19 @@ interface BirthdayFormProps {
   isOpen: boolean;
 }
 
-export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFormProps) => {
+export const BirthdayForm = ({
+  birthday,
+  onSave,
+  onCancel,
+  isOpen,
+}: BirthdayFormProps) => {
   const [formData, setFormData] = useState({
     name: '',
+    surname: '',
     day: '',
     month: '',
     year: '',
-    notes: ''
+    notes: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -34,7 +40,7 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
     { value: '09', name: 'Сентябрь' },
     { value: '10', name: 'Октябрь' },
     { value: '11', name: 'Ноябрь' },
-    { value: '12', name: 'Декабрь' }
+    { value: '12', name: 'Декабрь' },
   ];
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
@@ -45,18 +51,20 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
       const [year, month, day] = birthday.dob.split('-');
       setFormData({
         name: birthday.name,
+        surname: birthday.surname || '',
         day: day,
         month: month,
         year: year,
-        notes: birthday.notes || ''
+        notes: birthday.notes || '',
       });
     } else {
       setFormData({
         name: '',
+        surname: '',
         day: '',
         month: '',
         year: '',
-        notes: ''
+        notes: '',
       });
     }
     setErrors({});
@@ -72,16 +80,22 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
     if (!formData.day || !formData.month || !formData.year) {
       newErrors.dob = 'Все поля даты рождения обязательны';
     } else {
-      const selectedDate = new Date(parseInt(formData.year), parseInt(formData.month) - 1, parseInt(formData.day));
+      const selectedDate = new Date(
+        parseInt(formData.year),
+        parseInt(formData.month) - 1,
+        parseInt(formData.day)
+      );
       const today = new Date();
       if (selectedDate > today) {
         newErrors.dob = 'Дата рождения не может быть в будущем';
       }
 
       // Check if the date is valid (e.g., not Feb 30th)
-      if (selectedDate.getDate() !== parseInt(formData.day) ||
-          selectedDate.getMonth() !== parseInt(formData.month) - 1 ||
-          selectedDate.getFullYear() !== parseInt(formData.year)) {
+      if (
+        selectedDate.getDate() !== parseInt(formData.day) ||
+        selectedDate.getMonth() !== parseInt(formData.month) - 1 ||
+        selectedDate.getFullYear() !== parseInt(formData.year)
+      ) {
         newErrors.dob = 'Недействительная дата';
       }
     }
@@ -92,32 +106,40 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       // Convert day, month, year to YYYY-MM-DD format
-      const dob = `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`;
-      
+      const dob = `${formData.year}-${formData.month.padStart(
+        2,
+        '0'
+      )}-${formData.day.padStart(2, '0')}`;
+
       onSave({
         name: formData.name.trim(),
+        surname: formData.surname.trim() || undefined,
         dob: dob,
-        notes: formData.notes.trim()
+        notes: formData.notes.trim(),
       });
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     // Clear error when user starts selecting
     if (errors[name] || errors.dob) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         [name]: '',
-        dob: ''
+        dob: '',
       }));
     }
   };
@@ -128,7 +150,11 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
     <div className="modal-overlay">
       <div className="modal">
         <div className="modal-header">
-          <h2>{birthday ? 'Редактировать День Рождения' : 'Добавить День Рождения'}</h2>
+          <h2>
+            {birthday
+              ? 'Редактировать День Рождения'
+              : 'Добавить День Рождения'}
+          </h2>
           <button onClick={onCancel} className="btn btn-sm btn-secondary">
             <X size={16} />
           </button>
@@ -143,10 +169,22 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Введите полное имя"
+              placeholder="Введите имя"
               className={errors.name ? 'error' : ''}
             />
             {errors.name && <span className="error-text">{errors.name}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="surname">Фамилия</label>
+            <input
+              type="text"
+              id="surname"
+              name="surname"
+              value={formData.surname}
+              onChange={handleChange}
+              placeholder="Введите фамилию"
+            />
           </div>
 
           <div className="form-group">
@@ -159,7 +197,7 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
                 className={errors.dob ? 'error' : ''}
               >
                 <option value="">День</option>
-                {days.map(day => (
+                {days.map((day) => (
                   <option key={day} value={day.toString().padStart(2, '0')}>
                     {day}
                   </option>
@@ -173,7 +211,7 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
                 className={errors.dob ? 'error' : ''}
               >
                 <option value="">Месяц</option>
-                {months.map(month => (
+                {months.map((month) => (
                   <option key={month.value} value={month.value}>
                     {month.name}
                   </option>
@@ -187,7 +225,7 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
                 className={errors.dob ? 'error' : ''}
               >
                 <option value="">Год</option>
-                {years.map(year => (
+                {years.map((year) => (
                   <option key={year} value={year}>
                     {year}
                   </option>
@@ -210,7 +248,11 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
           </div>
 
           <div className="modal-footer">
-            <button type="button" onClick={onCancel} className="btn btn-secondary">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="btn btn-secondary"
+            >
               Отмена
             </button>
             <button type="submit" className="btn btn-primary">
@@ -221,4 +263,4 @@ export const BirthdayForm = ({ birthday, onSave, onCancel, isOpen }: BirthdayFor
       </div>
     </div>
   );
-}; 
+};

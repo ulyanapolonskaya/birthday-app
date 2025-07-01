@@ -1,12 +1,12 @@
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  orderBy 
+import {
+  collection,
+  doc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Birthday } from '../types';
@@ -14,7 +14,7 @@ import type { User } from 'firebase/auth';
 
 export class BirthdayService {
   private static instance: BirthdayService;
-  
+
   private constructor() {}
 
   public static getInstance(): BirthdayService {
@@ -33,15 +33,15 @@ export class BirthdayService {
       const birthdaysCollection = this.getUserCollection(user.uid);
       const q = query(birthdaysCollection, orderBy('name'));
       const querySnapshot = await getDocs(q);
-      
+
       const birthdays: Birthday[] = [];
       querySnapshot.forEach((doc) => {
         birthdays.push({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         } as Birthday);
       });
-      
+
       return birthdays;
     } catch (error) {
       console.error('Error getting birthdays:', error);
@@ -49,7 +49,10 @@ export class BirthdayService {
     }
   }
 
-  public async addBirthday(user: User, birthday: Omit<Birthday, 'id'>): Promise<string> {
+  public async addBirthday(
+    user: User,
+    birthday: Omit<Birthday, 'id'>
+  ): Promise<string> {
     try {
       const birthdaysCollection = this.getUserCollection(user.uid);
       const docRef = await addDoc(birthdaysCollection, birthday);
@@ -60,7 +63,11 @@ export class BirthdayService {
     }
   }
 
-  public async updateBirthday(user: User, birthdayId: string, birthday: Omit<Birthday, 'id'>): Promise<void> {
+  public async updateBirthday(
+    user: User,
+    birthdayId: string,
+    birthday: Omit<Birthday, 'id'>
+  ): Promise<void> {
     try {
       const birthdayDoc = doc(this.getUserCollection(user.uid), birthdayId);
       await updateDoc(birthdayDoc, birthday);
@@ -80,29 +87,74 @@ export class BirthdayService {
     }
   }
 
-  // Migration helper: Copy existing data to Firestore
-  public async migrateBirthdays(user: User, birthdays: Birthday[]): Promise<void> {
+  // Migration helper: Copy existing data to Firestore (with smart merge)
+  public async migrateBirthdays(
+    user: User,
+    birthdays: Birthday[]
+  ): Promise<void> {
     try {
       const birthdaysCollection = this.getUserCollection(user.uid);
-      
-      // Check if user already has data
+
+      // Get existing birthdays to check for duplicates
       const existingBirthdays = await this.getBirthdays(user);
-      if (existingBirthdays.length > 0) {
-        console.log('User already has birthdays in Firestore, skipping migration');
-        return;
+
+      // Create a set of existing birthdays for duplicate checking
+      const existingKeys = new Set(
+        existingBirthdays.map(
+          (b) =>
+            `${b.name.toLowerCase()}_${b.surname?.toLowerCase() || ''}_${b.dob}`
+        )
+      );
+
+      let addedCount = 0;
+
+      // Add birthdays that don't already exist
+      for (const birthday of birthdays) {
+        const key = `${birthday.name.toLowerCase()}_${
+          birthday.surname?.toLowerCase() || ''
+        }_${birthday.dob}`;
+
+        if (!existingKeys.has(key)) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { id, ...birthdayData } = birthday;
+          await addDoc(birthdaysCollection, birthdayData);
+          addedCount++;
+        }
       }
 
-      // Add all birthdays to Firestore
-      for (const birthday of birthdays) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { id, ...birthdayData } = birthday;
-        await addDoc(birthdaysCollection, birthdayData);
-      }
-      
-      console.log('Successfully migrated birthdays to Firestore');
+      console.log(
+        `Successfully migrated ${addedCount} new birthdays to Firestore (${
+          birthdays.length - addedCount
+        } duplicates skipped)`
+      );
     } catch (error) {
       console.error('Error migrating birthdays:', error);
       throw error;
     }
   }
-} 
+
+  // Force migration helper: Always try to merge family birthdays for all users
+  public async forceMigrateFamilyBirthdays(user: User): Promise<void> {
+    try {
+      // Try to fetch the family birthdays from JSON file
+      let familyBirthdays: Birthday[] = [];
+
+      try {
+        const response = await fetch('./birthdays.json');
+        if (response.ok) {
+          familyBirthdays = await response.json();
+        }
+      } catch {
+        console.log('No family birthdays.json found');
+        return;
+      }
+
+      if (familyBirthdays.length > 0) {
+        await this.migrateBirthdays(user, familyBirthdays);
+      }
+    } catch (error) {
+      console.error('Error force migrating family birthdays:', error);
+      // Don't throw - this shouldn't break the app if it fails
+    }
+  }
+}

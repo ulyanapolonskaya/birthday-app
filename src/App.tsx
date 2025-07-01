@@ -16,11 +16,11 @@ import { ThemeProvider } from './contexts/ThemeContext';
 const getYearsWord = (count: number): string => {
   const lastDigit = count % 10;
   const lastTwoDigits = count % 100;
-  
+
   if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
     return 'лет';
   }
-  
+
   if (lastDigit === 1) {
     return 'год';
   } else if (lastDigit >= 2 && lastDigit <= 4) {
@@ -32,14 +32,18 @@ const getYearsWord = (count: number): string => {
 
 function MainApp() {
   const [birthdays, setBirthdays] = useState<Birthday[]>([]);
-  const [enrichedBirthdays, setEnrichedBirthdays] = useState<BirthdayWithCalculations[]>([]);
+  const [enrichedBirthdays, setEnrichedBirthdays] = useState<
+    BirthdayWithCalculations[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
   // Form state
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingBirthday, setEditingBirthday] = useState<Birthday | undefined>();
+  const [editingBirthday, setEditingBirthday] = useState<
+    Birthday | undefined
+  >();
 
   // Delete confirmation state
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -49,7 +53,7 @@ function MainApp() {
   }>({
     isOpen: false,
     birthdayId: '',
-    birthdayName: ''
+    birthdayName: '',
   });
 
   const authService = AuthService.getInstance();
@@ -59,7 +63,7 @@ function MainApp() {
   useEffect(() => {
     const unsubscribe = authService.onAuthStateChanged(async (authUser) => {
       setUser(authUser);
-      
+
       if (authUser) {
         await loadBirthdays(authUser);
       } else {
@@ -76,38 +80,29 @@ function MainApp() {
     try {
       setLoading(true);
       setError(null);
-      
+
       let firestoreBirthdays = await birthdayService.getBirthdays(authUser);
-      
-      // If no birthdays in Firestore, try to migrate from localStorage or JSON
+
+      // If no birthdays in Firestore, try to migrate from localStorage
       if (firestoreBirthdays.length === 0) {
-        let defaultBirthdays: Birthday[] = [];
-        
-        // First try localStorage
         const localData = localStorage.getItem('birthdays');
         if (localData) {
-          defaultBirthdays = JSON.parse(localData);
-        } else {
-          // Then try JSON file
-          try {
-            const response = await fetch('./birthdays.json');
-            if (response.ok) {
-              defaultBirthdays = await response.json();
-            }
-          } catch {
-            console.log('No default birthdays.json found');
-          }
-        }
-        
-        if (defaultBirthdays.length > 0) {
+          const defaultBirthdays = JSON.parse(localData);
           await birthdayService.migrateBirthdays(authUser, defaultBirthdays);
           firestoreBirthdays = await birthdayService.getBirthdays(authUser);
         }
       }
-      
+
+      // Always try to merge family birthdays from JSON for all users (existing and new)
+      await birthdayService.forceMigrateFamilyBirthdays(authUser);
+
+      // Reload birthdays after potential family migration
+      firestoreBirthdays = await birthdayService.getBirthdays(authUser);
       setBirthdays(firestoreBirthdays);
     } catch (err) {
-      setError('Не удалось загрузить дни рождения. Пожалуйста, попробуйте позже.');
+      setError(
+        'Не удалось загрузить дни рождения. Пожалуйста, попробуйте позже.'
+      );
       console.error('Error loading birthdays:', err);
     } finally {
       setLoading(false);
@@ -123,11 +118,11 @@ function MainApp() {
 
   const handleAddBirthday = async (birthdayData: Omit<Birthday, 'id'>) => {
     if (!user) return;
-    
+
     try {
       const newId = await birthdayService.addBirthday(user, birthdayData);
       const newBirthday: Birthday = { ...birthdayData, id: newId };
-      setBirthdays(prev => [...prev, newBirthday]);
+      setBirthdays((prev) => [...prev, newBirthday]);
       setIsFormOpen(false);
     } catch (err) {
       setError('Не удалось добавить день рождения.');
@@ -137,14 +132,20 @@ function MainApp() {
 
   const handleEditBirthday = async (birthdayData: Omit<Birthday, 'id'>) => {
     if (!editingBirthday || !user) return;
-    
+
     try {
-      await birthdayService.updateBirthday(user, editingBirthday.id, birthdayData);
-      setBirthdays(prev => prev.map(b => 
-        b.id === editingBirthday.id 
-          ? { ...birthdayData, id: editingBirthday.id }
-          : b
-      ));
+      await birthdayService.updateBirthday(
+        user,
+        editingBirthday.id,
+        birthdayData
+      );
+      setBirthdays((prev) =>
+        prev.map((b) =>
+          b.id === editingBirthday.id
+            ? { ...birthdayData, id: editingBirthday.id }
+            : b
+        )
+      );
       setIsFormOpen(false);
       setEditingBirthday(undefined);
     } catch (err) {
@@ -154,22 +155,24 @@ function MainApp() {
   };
 
   const handleDeleteBirthday = (id: string) => {
-    const birthday = birthdays.find(b => b.id === id);
+    const birthday = birthdays.find((b) => b.id === id);
     if (birthday) {
       setDeleteConfirm({
         isOpen: true,
         birthdayId: id,
-        birthdayName: birthday.name
+        birthdayName: birthday.name,
       });
     }
   };
 
   const confirmDelete = async () => {
     if (!user) return;
-    
+
     try {
       await birthdayService.deleteBirthday(user, deleteConfirm.birthdayId);
-      setBirthdays(prev => prev.filter(b => b.id !== deleteConfirm.birthdayId));
+      setBirthdays((prev) =>
+        prev.filter((b) => b.id !== deleteConfirm.birthdayId)
+      );
       setDeleteConfirm({ isOpen: false, birthdayId: '', birthdayName: '' });
     } catch (err) {
       setError('Не удалось удалить день рождения.');
@@ -192,7 +195,7 @@ function MainApp() {
     setEditingBirthday(undefined);
   };
 
-  const todaysBirthdays = enrichedBirthdays.filter(b => b.isToday);
+  const todaysBirthdays = enrichedBirthdays.filter((b) => b.isToday);
 
   if (!user) {
     return <LoginForm />;
@@ -201,9 +204,15 @@ function MainApp() {
   if (loading) {
     return (
       <div className="container">
-        <div className="flex justify-center items-center" style={{ minHeight: '50vh' }}>
+        <div
+          className="flex justify-center items-center"
+          style={{ minHeight: '50vh' }}
+        >
           <div className="text-center">
-            <Calendar size={48} style={{ color: 'var(--accent-teal)', margin: '0 auto 1rem' }} />
+            <Calendar
+              size={48}
+              style={{ color: 'var(--accent-teal)', margin: '0 auto 1rem' }}
+            />
             <p>Загрузка дней рождения...</p>
           </div>
         </div>
@@ -214,11 +223,14 @@ function MainApp() {
   if (error) {
     return (
       <div className="container">
-        <div className="flex justify-center items-center" style={{ minHeight: '50vh' }}>
+        <div
+          className="flex justify-center items-center"
+          style={{ minHeight: '50vh' }}
+        >
           <div className="text-center">
             <p style={{ color: 'var(--error)' }}>{error}</p>
-            <button 
-              onClick={() => user && loadBirthdays(user)} 
+            <button
+              onClick={() => user && loadBirthdays(user)}
               className="btn btn-primary"
               style={{ marginTop: 'var(--spacing-md)' }}
             >
@@ -243,9 +255,10 @@ function MainApp() {
               <ThemeSwitcher />
               <div className="user-info">
                 <div className="user-name">
-                  {user.displayName || (user.isAnonymous ? 'Гость' : user.email)}
+                  {user.displayName ||
+                    (user.isAnonymous ? 'Гость' : user.email)}
                 </div>
-                <button 
+                <button
                   onClick={() => authService.logout().catch(console.error)}
                   className="logout-btn"
                   title="Выйти"
@@ -256,8 +269,14 @@ function MainApp() {
               </div>
             </div>
           </div>
-          <p style={{ color: 'var(--text-muted)', marginTop: 'var(--spacing-sm)' }}>
-            Отслеживайте дни рождения ваших близких и никогда не забывайте поздравить!
+          <p
+            style={{
+              color: 'var(--text-muted)',
+              marginTop: 'var(--spacing-sm)',
+            }}
+          >
+            Отслеживайте дни рождения ваших близких и никогда не забывайте
+            поздравить!
           </p>
         </div>
 
@@ -269,9 +288,13 @@ function MainApp() {
               <strong>🎉 Сегодня день рождения!</strong>
             </div>
             <div className="flex flex-wrap gap-sm">
-              {todaysBirthdays.map(birthday => (
+              {todaysBirthdays.map((birthday) => (
                 <span key={birthday.id} className="birthday-alert-name">
-                  {birthday.name} ({birthday.age !== undefined ? `${birthday.age} ${getYearsWord(birthday.age)}` : 'возраст неизвестен'})
+                  {birthday.name} (
+                  {birthday.age !== undefined
+                    ? `${birthday.age} ${getYearsWord(birthday.age)}`
+                    : 'возраст неизвестен'}
+                  )
                 </span>
               ))}
             </div>
@@ -300,7 +323,13 @@ function MainApp() {
 
         {enrichedBirthdays.length === 0 && (
           <div className="empty-state">
-            <Calendar size={64} style={{ color: 'var(--text-muted)', margin: '0 auto var(--spacing-lg)' }} />
+            <Calendar
+              size={64}
+              style={{
+                color: 'var(--text-muted)',
+                margin: '0 auto var(--spacing-lg)',
+              }}
+            />
             <h2>Нет дней рождения</h2>
             <p>Добавьте первый день рождения, чтобы начать отслеживание.</p>
             <button onClick={openAddForm} className="btn btn-primary">
@@ -324,7 +353,9 @@ function MainApp() {
         title="Удалить день рождения"
         message={`Вы уверены, что хотите удалить день рождения ${deleteConfirm.birthdayName}?`}
         onConfirm={confirmDelete}
-        onCancel={() => setDeleteConfirm({ isOpen: false, birthdayId: '', birthdayName: '' })}
+        onCancel={() =>
+          setDeleteConfirm({ isOpen: false, birthdayId: '', birthdayName: '' })
+        }
       />
     </div>
   );
@@ -349,9 +380,15 @@ function App() {
   if (initializing) {
     return (
       <div className="container">
-        <div className="flex justify-center items-center" style={{ minHeight: '50vh' }}>
+        <div
+          className="flex justify-center items-center"
+          style={{ minHeight: '50vh' }}
+        >
           <div className="text-center">
-            <Calendar size={48} style={{ color: 'var(--accent-teal)', margin: '0 auto 1rem' }} />
+            <Calendar
+              size={48}
+              style={{ color: 'var(--accent-teal)', margin: '0 auto 1rem' }}
+            />
             <p>Инициализация...</p>
           </div>
         </div>

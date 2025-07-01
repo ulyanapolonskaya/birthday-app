@@ -83,9 +83,18 @@ export const BirthdayCard = ({
                 {formatBirthday(birthday.dob)}
               </span>
               {birthday.age && (
-                <span className="text-muted text-sm">
-                  {birthday.age} {getYearsWord(birthday.age)}
-                </span>
+                <div className="flex items-center gap-sm text-muted text-sm">
+                  <span>
+                    {birthday.age} {getYearsWord(birthday.age)}
+                  </span>
+                  {birthday.upcomingAge &&
+                    birthday.upcomingAge !== birthday.age && (
+                      <span className="text-accent">
+                        → {birthday.upcomingAge}{' '}
+                        {getYearsWord(birthday.upcomingAge)}
+                      </span>
+                    )}
+                </div>
               )}
             </div>
 

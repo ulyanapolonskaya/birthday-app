@@ -13,6 +13,12 @@ export const calculateAge = (dob: string): number => {
   return differenceInYears(new Date(), birthDate);
 };
 
+export const calculateUpcomingAge = (dob: string): number => {
+  const birthDate = parseISO(dob);
+  const nextBirthday = getNextBirthday(dob);
+  return differenceInYears(nextBirthday, birthDate);
+};
+
 export const getNextBirthday = (dob: string): Date => {
   const birthDate = parseISO(dob);
   const today = new Date();
@@ -73,6 +79,7 @@ export const enrichBirthdayData = (
   return {
     ...birthday,
     age: calculateAge(birthday.dob),
+    upcomingAge: calculateUpcomingAge(birthday.dob),
     daysUntilNext: getDaysUntilBirthday(birthday.dob),
     isToday: isBirthdayToday(birthday.dob),
     nextBirthday: getNextBirthday(birthday.dob),

@@ -8,6 +8,7 @@ export interface Birthday {
 
 export interface BirthdayWithCalculations extends Birthday {
   age?: number;
+  upcomingAge?: number;
   daysUntilNext: number;
   isToday: boolean;
   nextBirthday: Date;

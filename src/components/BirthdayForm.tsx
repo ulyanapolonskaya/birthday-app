@@ -114,12 +114,25 @@ export const BirthdayForm = ({
         '0'
       )}-${formData.day.padStart(2, '0')}`;
 
-      onSave({
+      // Create the birthday object, only including non-empty optional fields
+      const birthdayData: Omit<Birthday, 'id'> = {
         name: formData.name.trim(),
-        surname: formData.surname.trim() || undefined,
         dob: dob,
-        notes: formData.notes.trim(),
-      });
+      };
+
+      // Only add surname if it's not empty
+      const trimmedSurname = formData.surname.trim();
+      if (trimmedSurname) {
+        birthdayData.surname = trimmedSurname;
+      }
+
+      // Only add notes if it's not empty
+      const trimmedNotes = formData.notes.trim();
+      if (trimmedNotes) {
+        birthdayData.notes = trimmedNotes;
+      }
+
+      onSave(birthdayData);
     }
   };
 

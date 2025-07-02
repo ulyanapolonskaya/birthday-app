@@ -30,14 +30,17 @@ const getYearsWord = (count: number): string => {
   }
 };
 
-function MainApp() {
+interface MainAppProps {
+  user: User;
+}
+
+function MainApp({ user }: MainAppProps) {
   const [birthdays, setBirthdays] = useState<Birthday[]>([]);
   const [enrichedBirthdays, setEnrichedBirthdays] = useState<
     BirthdayWithCalculations[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
 
   // Form state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -59,21 +62,16 @@ function MainApp() {
   const authService = AuthService.getInstance();
   const birthdayService = BirthdayService.getInstance();
 
-  // Initialize authentication and listen for auth state changes
+  // Load birthdays when user changes
   useEffect(() => {
-    const unsubscribe = authService.onAuthStateChanged(async (authUser) => {
-      setUser(authUser);
-
-      if (authUser) {
-        await loadBirthdays(authUser);
-      } else {
-        setBirthdays([]);
-        setError(null);
-      }
-    });
-
-    return unsubscribe;
-  }, []);
+    if (user) {
+      loadBirthdays(user);
+    } else {
+      setBirthdays([]);
+      setError(null);
+      setLoading(false);
+    }
+  }, [user]);
 
   // Load birthdays from Firestore
   const loadBirthdays = async (authUser: User) => {
@@ -196,10 +194,6 @@ function MainApp() {
   };
 
   const todaysBirthdays = enrichedBirthdays.filter((b) => b.isToday);
-
-  if (!user) {
-    return <LoginForm />;
-  }
 
   if (loading) {
     return (
@@ -398,7 +392,7 @@ function App() {
 
   return (
     <ThemeProvider user={user}>
-      <MainApp />
+      {user ? <MainApp user={user} /> : <LoginForm />}
     </ThemeProvider>
   );
 }

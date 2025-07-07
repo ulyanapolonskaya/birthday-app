@@ -11,6 +11,7 @@ import { ThemeSwitcher } from './components/ThemeSwitcher';
 import { AuthService } from './services/authService';
 import { BirthdayService } from './services/birthdayService';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { Cake } from 'lucide-react';
 
 // Helper function for Russian pluralization of years
 const getYearsWord = (count: number): string => {
@@ -278,8 +279,8 @@ function MainApp({ user }: MainAppProps) {
         {todaysBirthdays.length > 0 && (
           <div className="birthday-alert">
             <div className="flex items-center gap-sm mb-sm">
-              <Calendar size={20} />
-              <strong>🎉 Сегодня день рождения!</strong>
+              <Cake size={20} style={{ color: 'var(--accent-rose)' }} />
+              <strong> Сегодня день рождения!</strong>
             </div>
             <div className="flex flex-wrap gap-sm">
               {todaysBirthdays.map((birthday) => (

@@ -64,8 +64,12 @@ export const getDaysUntilBirthday = (dob: string): number => {
 };
 
 export const isBirthdayToday = (dob: string): boolean => {
-  const nextBirthday = getNextBirthday(dob);
-  return isToday(nextBirthday);
+  const birthDate = parseISO(dob);
+  const today = new Date();
+  
+  // Check if month and day match today's date
+  return birthDate.getDate() === today.getDate() && 
+         birthDate.getMonth() === today.getMonth();
 };
 
 export const formatBirthday = (dob: string): string => {

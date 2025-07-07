@@ -706,3 +706,52 @@ textarea {
 .theme-switcher:active {
   transform: translateY(0);
 }
+
+/* Today's Birthdays Section */
+.today-birthdays-section {
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  border-left: 4px solid var(--accent-teal);
+}
+
+.section-title {
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  font-size: 1.25rem;
+}
+
+.today-birthdays-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.today-birthday-card {
+  background-color: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  flex: 1;
+  min-width: 250px;
+  box-shadow: var(--shadow-sm);
+  border-left: 3px solid var(--accent-rose);
+}
+
+.today-birthday-card h3 {
+  margin-bottom: var(--spacing-xs);
+  color: var(--accent-rose);
+  font-size: 1.1rem;
+}
+
+.today-birthday-card p {
+  margin-bottom: var(--spacing-xs);
+  font-size: 0.95rem;
+}
+
+.today-birthday-card .notes {
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
